@@ -53,7 +53,8 @@ export default function Header() {
                         {/* We use a quick SVG for the menu instead of adding a new icon import to keep it clean */}
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </button>
-                    <h2 className="text-lg lg:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-700 to-emerald-600 truncate">
+                    <img src="/logo.png" alt="Logo" className="h-8 object-contain" />
+                    <h2 className="text-lg lg:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-700 to-emerald-600 truncate hidden sm:block">
                         Workspace
                     </h2>
                 </div>

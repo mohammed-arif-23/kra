@@ -61,14 +61,8 @@ export default function Sidebar() {
 
             <aside className={`fixed inset-y-0 left-0 w-[280px] bg-[#001D22] text-white flex flex-col min-h-screen border-r border-teal-900/50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="p-6 pb-2">
-                    <div className="flex items-center space-x-3 bg-teal-800/20 p-3 rounded-2xl border border-teal-700/30">
-                        <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
-                            <Stethoscope size={24} className="text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-sm font-bold tracking-wide text-teal-50 uppercase leading-tight">Valli Super</h1>
-                            <p className="text-[10px] text-teal-400 font-semibold uppercase tracking-widest">Speciality</p>
-                        </div>
+                    <div className="flex items-center justify-center bg-white p-3 rounded-2xl shadow-md border border-slate-200">
+                        <img src="/logo.png" alt="Valli Logo" className="h-12 object-contain" />
                     </div>
                 </div>
                 <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto pb-8 pt-4 custom-scrollbar">

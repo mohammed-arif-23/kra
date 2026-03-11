@@ -43,13 +43,10 @@ export default function LoginPage() {
     return (
         <div className="min-h-[80vh] flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="bg-teal-900 p-8 text-center bg-opacity-95">
-                    <div className="inline-flex justify-center items-center bg-teal-800 p-4 rounded-full mb-4 shadow-inner">
-                        <Activity className="text-teal-400 w-10 h-10" />
-                        <Stethoscope className="text-teal-100 w-8 h-8 -ml-4" />
-                    </div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">Valli PMS</h2>
-                    <p className="text-teal-100 mt-2 text-sm leading-relaxed">
+                <div className="bg-white border-b border-slate-100 p-8 text-center rounded-t-2xl">
+                    <img src="/logo.png" alt="Valli Logo" className="h-16 mx-auto mb-4 object-contain" />
+                    <h2 className="text-2xl font-bold text-teal-900 tracking-tight">Valli PMS</h2>
+                    <p className="text-teal-700 mt-2 text-sm leading-relaxed font-medium">
                         Performance Management System<br />Marketing Department
                     </p>
                 </div>
