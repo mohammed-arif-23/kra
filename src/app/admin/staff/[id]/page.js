@@ -4,6 +4,11 @@ import { supabase } from '@/utils/supabase';
 import { Activity, Star, TrendingDown, TrendingUp, Users, ArrowLeft, Calendar, User, FileText, CheckCircle2, Phone, MapPin, Briefcase, FileSignature, Receipt, HeartPulse, Building2, HeartHandshake, ChevronDown, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const KRAS = [
     { id: '1a', title: '1a. Doctors/Clinics', target: 52, weightage: 15 },
@@ -22,11 +27,19 @@ export default function StaffDetail({ params }) {
     const resolvedParams = use(params);
     const staffId = resolvedParams.id;
 
+    const searchParams = useSearchParams();
+
+    // Ensure that selectedMonth and Year read from query parameters if present
+    const defaultMonth = searchParams.get('month') !== null ? parseInt(searchParams.get('month')) : new Date().getMonth();
+    const defaultYear = searchParams.get('year') !== null ? parseInt(searchParams.get('year')) : new Date().getFullYear();
+
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
     const [staffData, setStaffData] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [submissions, setSubmissions] = useState({});
+    const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+    const [selectedYear, setSelectedYear] = useState(defaultYear);
 
     const fetchData = async () => {
         setLoading(true);
@@ -37,9 +50,8 @@ export default function StaffDetail({ params }) {
             setProfile(prof);
             if (prof?.role !== 'admin') return;
 
-            const date = new Date();
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
-            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
+            const firstDay = new Date(selectedYear, selectedMonth, 1).toISOString();
+            const lastDay = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
 
             const [
                 { data: staffProf },
@@ -128,7 +140,7 @@ export default function StaffDetail({ params }) {
         }
     };
 
-    useEffect(() => { fetchData(); }, [staffId]);
+    useEffect(() => { fetchData(); }, [staffId, selectedMonth, selectedYear]);
 
     const calculateTotalRevenue = (record) => {
         return (record.op_invoice || 0) + (record.amount_paid || 0) + (record.pharmacy_amount || 0);
@@ -150,11 +162,16 @@ export default function StaffDetail({ params }) {
 
     const ImagePreview = ({ url }) => {
         if (!url) return null;
+        const urls = url.split(',');
         return (
             <div className="mt-4 pt-4 border-t border-slate-100">
-                <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl transition-colors font-bold text-sm">
-                    <ImageIcon size={18} /> View Uploaded Media
-                </a>
+                <div className="flex flex-wrap gap-2">
+                    {urls.map((u, i) => (
+                        <a key={i} href={u.trim()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl transition-colors font-bold text-sm">
+                            <ImageIcon size={18} /> {urls.length > 1 ? `View Media ${i + 1}` : 'View Uploaded Media'}
+                        </a>
+                    ))}
+                </div>
             </div>
         );
     };
@@ -162,9 +179,29 @@ export default function StaffDetail({ params }) {
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
             <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <Link href="/admin" className="inline-flex items-center text-slate-500 hover:text-teal-700 font-bold gap-2 py-2 px-4 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow transition-all w-fit">
-                    <ArrowLeft size={18} /> Back to Dashboard
-                </Link>
+                <div className="flex justify-between items-center w-full">
+                    <Link href="/admin" className="inline-flex items-center text-slate-500 hover:text-teal-700 font-bold gap-2 py-2 px-4 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow transition-all w-fit">
+                        <ArrowLeft size={18} /> Back to Dashboard
+                    </Link>
+
+                    <div className="flex items-center space-x-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm z-10 relative">
+                        <Calendar size={18} className="text-slate-400 ml-2" />
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                            className="bg-transparent border-none focus:ring-0 text-slate-700 font-bold text-sm cursor-pointer outline-none"
+                        >
+                            {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                        </select>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                            className="bg-transparent border-none text-slate-700 font-bold text-sm cursor-pointer outline-none pl-1 border-l border-slate-200"
+                        >
+                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                    </div>
+                </div>
 
                 {/* Profile Header Block */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-teal-900/5 p-8 md:p-12 relative overflow-hidden border border-slate-100">
@@ -585,8 +622,10 @@ export default function StaffDetail({ params }) {
                                                 <div className="bg-amber-50 w-16 h-16 rounded-full flex items-center justify-center mb-3">
                                                     <Star fill="currentColor" size={28} className="text-amber-500" />
                                                 </div>
-                                                <div className="text-3xl font-black text-slate-800">+{v.no_of_reviews}</div>
                                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Reviews</div>
+                                                <div className="mt-4 pt-4 w-full border-t border-slate-100/50">
+                                                    <ImagePreview url={v.image_url} />
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

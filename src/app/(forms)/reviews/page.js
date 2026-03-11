@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import ImageUpload from '@/components/ImageUpload';
+import MultipleImageUpload from '@/components/MultipleImageUpload';
 import { CheckCircle2, FileText } from 'lucide-react';
 
 export default function ReviewsForm() {
@@ -88,9 +88,9 @@ export default function ReviewsForm() {
                         </div>
 
                         <div className="pt-4 border-t border-slate-100">
-                            <ImageUpload
-                                label="Screenshot / Evidence (Required)"
-                                onUploadComplete={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                            <MultipleImageUpload
+                                label="Screenshot / Evidence (Required, Max 5)"
+                                onUploadComplete={(urls) => setFormData(prev => ({ ...prev, image_url: urls.join(',') }))}
                             />
                         </div>
 

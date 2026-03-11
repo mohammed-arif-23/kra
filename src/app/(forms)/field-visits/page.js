@@ -116,7 +116,7 @@ export default function FieldVisitsForm() {
                             <div>
                                 <label className="form-label">Status</label>
                                 <select name="status" value={formData.status} onChange={handleChange} className="form-input">
-                                    <option value="C">Converted (C)</option>
+                                    <option value="C">Cold (C)</option>
                                     <option value="W">Warm (W)</option>
                                     <option value="H">Hot (H)</option>
                                 </select>

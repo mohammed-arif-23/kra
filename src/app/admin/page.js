@@ -1,8 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import { Activity, Users, Star, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Activity, Users, Star, TrendingDown, TrendingUp, AlertTriangle, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const KRAS = [
     { id: '1a', title: '1a. Doctors/Clinics', target: 52, weightage: 15 },
@@ -21,6 +25,8 @@ export default function AdminDashboardPage() {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
     const [staffData, setStaffData] = useState([]);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -30,9 +36,8 @@ export default function AdminDashboardPage() {
             setProfile(prof);
             if (prof?.role !== 'admin') return;
 
-            const date = new Date();
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
-            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
+            const firstDay = new Date(selectedYear, selectedMonth, 1).toISOString();
+            const lastDay = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
 
             const [
                 { data: users },
@@ -110,16 +115,37 @@ export default function AdminDashboardPage() {
         }
     };
 
-    useEffect(() => { fetchData(); }, []);
+    useEffect(() => { fetchData(); }, [selectedMonth, selectedYear]);
 
     if (loading) return <div className="flex h-[50vh] items-center justify-center text-teal-700 animate-pulse"><Activity className="w-8 h-8" /></div>;
     if (profile?.role !== 'admin') return <div className="text-center p-10 text-rose-500 font-bold">Access Denied. Admins Only.</div>;
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-800 to-teal-500">Admin Live Analytics</h1>
-                <p className="text-slate-500 mt-2 font-medium">Monitor, verify, and track all staff members automatically based on their form submissions.</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-800 to-teal-500">Admin Live Analytics</h1>
+                    <p className="text-slate-500 mt-2 font-medium">Monitor, verify, and track all staff members automatically based on their form submissions.</p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <div className="flex items-center space-x-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <Calendar size={18} className="text-slate-400 ml-2" />
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                            className="bg-transparent border-none focus:ring-0 text-slate-700 font-bold text-sm cursor-pointer outline-none"
+                        >
+                            {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                        </select>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                            className="bg-transparent border-none text-slate-700 font-bold text-sm cursor-pointer outline-none pl-1 border-l border-slate-200"
+                        >
+                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -142,7 +168,7 @@ export default function AdminDashboardPage() {
                 {staffData.map((staff, idx) => (
                     <div key={staff.id} className="glass-card overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-teal-900/5">
                         <div
-                            onClick={() => window.open(`/admin/staff/${staff.id}`, '_blank')}
+                            onClick={() => window.open(`/admin/staff/${staff.id}?month=${selectedMonth}&year=${selectedYear}`, '_blank')}
                             className="p-6 flex flex-col md:flex-row md:items-center justify-between cursor-pointer hover:bg-white/40 transition-colors"
                         >
                             <div className="flex items-center space-x-5 mb-4 md:mb-0">

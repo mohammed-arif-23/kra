@@ -1,9 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import { Activity, Star, AlertTriangle, RefreshCw } from 'lucide-react';
-
+import { Activity, Star, AlertTriangle, RefreshCw, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const KRAS = [
   { id: '1a', title: '1a. Field Visits (Doctor/Clinic)', target: 52, weightage: 15 },
@@ -23,6 +26,8 @@ export default function DashboardPage() {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const fetchData = async () => {
     setLoading(true);
@@ -37,10 +42,9 @@ export default function DashboardPage() {
       }
       setProfile(prof);
 
-      // Get first and last day of current month contextually
-      const date = new Date();
-      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
-      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
+      // Get first and last day of selected month contextually
+      const firstDay = new Date(selectedYear, selectedMonth, 1).toISOString();
+      const lastDay = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
 
       // Parallel fetching for performance
       const [
@@ -88,7 +92,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   const getCalculations = (kra) => {
     const actual = data[kra.id] || 0;
@@ -134,15 +138,34 @@ export default function DashboardPage() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-800 to-teal-500">
             {profile?.role === 'admin' ? 'Admin ' : ''}My Dashboard
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">Your current month's performance evaluation and KRA metrics.</p>
+          <p className="text-slate-500 mt-2 font-medium">Your monthly performance evaluation and KRA metrics.</p>
         </div>
-        <button
-          onClick={fetchData}
-          className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-teal-700 border border-teal-100 px-5 py-2.5 rounded-xl hover:bg-teal-50 hover:shadow-md transition-all font-semibold self-start"
-        >
-          <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-          <span>Refresh Data</span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex items-center space-x-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
+            <Calendar size={18} className="text-slate-400 ml-2" />
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              className="bg-transparent border-none focus:ring-0 text-slate-700 font-bold text-sm cursor-pointer outline-none"
+            >
+              {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="bg-transparent border-none text-slate-700 font-bold text-sm cursor-pointer outline-none pl-1 border-l border-slate-200"
+            >
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <button
+            onClick={fetchData}
+            className="flex items-center space-x-2 bg-white/80 backdrop-blur-md text-teal-700 border border-teal-100 px-5 py-2.5 rounded-xl hover:bg-teal-50 hover:shadow-md transition-all font-semibold self-stretch sm:self-auto"
+          >
+            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+            <span className="hidden sm:inline">Refresh Data</span>
+          </button>
+        </div>
       </div>
 
       <div className="glass-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center border border-white/60">
